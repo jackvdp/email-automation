@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, Upload, Mail, Send } from 'lucide-react';
+import { AlertCircle, Upload, Send } from 'lucide-react';
 import {
     Alert,
     AlertDescription,

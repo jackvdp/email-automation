@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { ConfidentialClientApplication } from '@azure/msal-node';
-require('isomorphic-fetch');
+import 'isomorphic-fetch';
 
 interface EmailRecipient {
     email: string;

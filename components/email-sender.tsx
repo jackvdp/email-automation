@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import { AlertCircle, Upload, Send, LogIn, LogOut } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
@@ -86,7 +86,7 @@ const EmailSender = () => {
     const handleSendEmails = async () => {
         setSending(true);
         try {
-            const sanitizedEmailBody = emailBody; // Add sanitization if needed
+            const sanitizedEmailBody = emailBody;
 
             const response = await fetch("/api/send-emails", {
                 method: "POST",
@@ -154,7 +154,7 @@ const EmailSender = () => {
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle>Mass Email Sender</CardTitle>
+                            <CardTitle>Mail Merge Sender</CardTitle>
                             <CardDescription>
                                 Upload your CSV, customize your email, and send to multiple
                                 recipients
@@ -176,7 +176,7 @@ const EmailSender = () => {
                     {/* CSV Upload Section */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-medium">1. Upload Recipients CSV</h3>
-                        <Alert>
+                        <Alert className="bg-secondary">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>CSV Format Required</AlertTitle>
                             <AlertDescription>
@@ -190,7 +190,7 @@ const EmailSender = () => {
                                 type="file"
                                 accept=".csv"
                                 onChange={handleFileUpload}
-                                className="flex-1"
+                                className=""
                             />
                             <Upload className="h-5 w-5 text-gray-500" />
                         </div>

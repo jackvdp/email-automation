@@ -1,10 +1,13 @@
+// app/components/EmailSender.tsx
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { AlertCircle, Upload, Send, LogIn } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from "@/hooks/use-toast";
@@ -49,7 +52,7 @@ const EmailSender = () => {
             reader.onload = (e: ProgressEvent<FileReader>): void => {
                 const text = e.target?.result;
                 if (typeof text === 'string') {
-                    const rows = text.split('\n');
+                    const rows = text.split('\n').filter(row => row.trim() !== '');
                     const headers = rows[0].split(',');
 
                     // Store full data
@@ -193,12 +196,29 @@ const EmailSender = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Email Body</label>
-                                <Textarea
-                                    placeholder="Enter email body (you can use ${first_name} etc.)"
+                                <ReactQuill
+                                    theme="snow"
                                     value={emailBody}
-                                    onChange={(e) => setEmailBody(e.target.value)}
-                                    rows={8}
-                                    className="font-mono"
+                                    onChange={setEmailBody}
+                                    placeholder="Compose your email here (you can use ${first_name} etc.)"
+                                    modules={{
+                                        toolbar: [
+                                            [{ 'header': [1, 2, false] }],
+                                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                            ['link', 'image'],
+                                            ['color', 'background'],
+                                            ['clean']
+                                        ],
+                                    }}
+                                    formats={[
+                                        'header',
+                                        'bold', 'italic', 'underline', 'strike', 'blockquote',
+                                        'list', 'bullet',
+                                        'link', 'image',
+                                        'color', 'background'
+                                    ]}
+                                    className="bg-white"
                                 />
                             </div>
                         </div>

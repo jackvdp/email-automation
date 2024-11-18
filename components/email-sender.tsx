@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import ReactQuill from "react-quill";
+import QuillWrapper from "./QuilWrapper";
 import "react-quill/dist/quill.snow.css";
 import { AlertCircle, Upload, Send, LogIn, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -26,7 +26,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 
-const EmailSender = () => {
+export default function EmailSender() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [csvFile, setCsvFile] = useState<File | null>(null);
     const [csvPreview, setCsvPreview] = useState<CsvRow[]>([]);
@@ -328,37 +328,7 @@ const EmailSender = () => {
                                 <label className="block text-sm font-medium mb-1">
                                     Email Body
                                 </label>
-                                <ReactQuill
-                                    theme="snow"
-                                    value={emailBody}
-                                    onChange={setEmailBody}
-                                    placeholder="Compose your email here (you can use ${first_name} etc.)"
-                                    modules={{
-                                        toolbar: [
-                                            [{ header: [1, 2, false] }],
-                                            ["bold", "italic", "underline", "strike", "blockquote"],
-                                            [{ list: "ordered" }, { list: "bullet" }],
-                                            ["link", "image"],
-                                            ["color", "background"],
-                                            ["clean"],
-                                        ],
-                                    }}
-                                    formats={[
-                                        "header",
-                                        "bold",
-                                        "italic",
-                                        "underline",
-                                        "strike",
-                                        "blockquote",
-                                        "list",
-                                        "bullet",
-                                        "link",
-                                        "image",
-                                        "color",
-                                        "background",
-                                    ]}
-                                    className="bg-white text-black"
-                                />
+                                <QuillWrapper value={emailBody} onChange={setEmailBody} />
                             </div>
 
                             {/* CC and BCC Toggle Section */}
@@ -490,5 +460,3 @@ const EmailSender = () => {
         </div>
     );
 };
-
-export default EmailSender;

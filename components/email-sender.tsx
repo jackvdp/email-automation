@@ -223,11 +223,6 @@ const EmailSender = () => {
                     </div>
                 </CardContent>
             </Card>
-            <h2>{csvFile !== null ? "Yes" : "No"}</h2>
-            <h2>{subject !== null ? "Yes" : "No"}</h2>
-            <h2>{emailBody !== null ? "Yes" : "No"}</h2>
-
-
         </div>
     );
 };

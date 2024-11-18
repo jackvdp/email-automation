@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { subject, emailBody, recipients } = await req.json();
+        const { subject, emailBody, recipients, cc, bcc } = await req.json();
 
         if (!subject || !emailBody || !recipients?.length) {
             return NextResponse.json(
@@ -82,26 +82,48 @@ export async function POST(req: NextRequest) {
                 const personalizedSubject = replaceTemplateVariables(subject, recipient);
                 const personalizedBody = replaceTemplateVariables(emailBody, recipient);
 
-                await client.api('/me/sendMail').post({
-                    message: {
-                        subject: personalizedSubject,
-                        body: {
-                            contentType: 'HTML',
-                            content: personalizedBody
-                        },
-                        toRecipients: [
-                            {
-                                emailAddress: {
-                                    address: recipient.email
-                                }
-                            }
-                        ]
+                // Construct the email message
+                const message: any = {
+                    subject: personalizedSubject,
+                    body: {
+                        contentType: 'HTML',
+                        content: personalizedBody
                     },
+                    toRecipients: [
+                        {
+                            emailAddress: {
+                                address: recipient.email
+                            }
+                        }
+                    ],
+                };
+
+                // Include CC if provided
+                if (cc) {
+                    message.ccRecipients = cc.split(',').map((email: string) => ({
+                        emailAddress: {
+                            address: email.trim()
+                        }
+                    }));
+                }
+
+                // Include BCC if provided
+                if (bcc) {
+                    message.bccRecipients = bcc.split(',').map((email: string) => ({
+                        emailAddress: {
+                            address: email.trim()
+                        }
+                    }));
+                }
+
+                await client.api('/me/sendMail').post({
+                    message,
                     saveToSentItems: true
                 });
 
                 console.log(`Successfully sent email to ${recipient.email}`);
                 results.successful.push(recipient.email);
+                // Delay to respect rate limits
                 await new Promise(resolve => setTimeout(resolve, 1000));
             } catch (error) {
                 console.error(`Failed to send email to ${recipient.email}:`, error);

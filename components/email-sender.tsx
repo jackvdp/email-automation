@@ -198,10 +198,35 @@ const EmailSender = () => {
                         {csvPreview.length > 0 && (
                             <div className="mt-4">
                                 <h4 className="font-medium mb-2">Preview (first 3 rows):</h4>
-                                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md">
-                                    <pre className="text-sm overflow-auto">
-                                        {JSON.stringify(csvPreview, null, 2)}
-                                    </pre>
+                                <div className="overflow-auto rounded-md border border-gray-200 dark:border-gray-700">
+                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                        <thead className="bg-gray-50 dark:bg-gray-800">
+                                            <tr>
+                                                {Object.keys(csvPreview[0]).map((header) => (
+                                                    <th
+                                                        key={header}
+                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                                    >
+                                                        {header}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                            {csvPreview.map((row, rowIndex) => (
+                                                <tr key={rowIndex}>
+                                                    {Object.values(row).map((value, cellIndex) => (
+                                                        <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                            {value}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                                    Total Rows: {csvData.length}
                                 </div>
                             </div>
                         )}
@@ -236,7 +261,7 @@ const EmailSender = () => {
                                             ["bold", "italic", "underline", "strike", "blockquote"],
                                             [{ list: "ordered" }, { list: "bullet" }],
                                             ["link", "image"],
-                                            ["color", "background"], // Added color options
+                                            ["color", "background"],
                                             ["clean"],
                                         ],
                                     }}

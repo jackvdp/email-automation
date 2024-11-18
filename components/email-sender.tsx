@@ -2,23 +2,30 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { AlertCircle, Upload, Send, LogIn } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import React, { useState, useEffect } from "react";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import { AlertCircle, Upload, Send, LogIn, LogOut } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
+import ThemeToggle from "@/components/theme-toggle";
 
 const EmailSender = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [csvFile, setCsvFile] = useState<File | null>(null);
     const [csvPreview, setCsvPreview] = useState<CsvRow[]>([]);
     const [csvData, setCsvData] = useState<CsvRow[]>([]);
-    const [subject, setSubject] = useState('');
-    const [emailBody, setEmailBody] = useState('');
+    const [subject, setSubject] = useState("");
+    const [emailBody, setEmailBody] = useState("");
     const [sending, setSending] = useState(false);
 
     type CsvRow = {
@@ -29,21 +36,23 @@ const EmailSender = () => {
         // Check if user is authenticated
         const checkAuth = async () => {
             try {
-                const response = await fetch('/api/auth/check');
+                const response = await fetch("/api/auth/check");
                 const data = await response.json();
                 setIsAuthenticated(data.isAuthenticated);
             } catch (error) {
-                console.error('Auth check failed:', error);
+                console.error("Auth check failed:", error);
             }
         };
         checkAuth();
     }, []);
 
     const handleSignIn = () => {
-        window.location.href = '/api/auth/login';
+        window.location.href = "/api/auth/login";
     };
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const handleFileUpload = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ): void => {
         const file = event.target.files?.[0];
         if (file) {
             setCsvFile(file);
@@ -51,13 +60,13 @@ const EmailSender = () => {
 
             reader.onload = (e: ProgressEvent<FileReader>): void => {
                 const text = e.target?.result;
-                if (typeof text === 'string') {
-                    const rows = text.split('\n').filter(row => row.trim() !== '');
-                    const headers = rows[0].split(',');
+                if (typeof text === "string") {
+                    const rows = text.split("\n").filter((row) => row.trim() !== "");
+                    const headers = rows[0].split(",");
 
                     // Store full data
-                    const fullData: CsvRow[] = rows.slice(1).map(row => {
-                        const values = row.split(',');
+                    const fullData: CsvRow[] = rows.slice(1).map((row) => {
+                        const values = row.split(",");
                         return headers.reduce<CsvRow>((obj, header, index) => {
                             obj[header.trim()] = values[index]?.trim();
                             return obj;
@@ -77,14 +86,16 @@ const EmailSender = () => {
     const handleSendEmails = async () => {
         setSending(true);
         try {
-            const response = await fetch('/api/send-emails', {
-                method: 'POST',
+            const sanitizedEmailBody = emailBody; // Add sanitization if needed
+
+            const response = await fetch("/api/send-emails", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     subject,
-                    emailBody,
+                    emailBody: sanitizedEmailBody,
                     recipients: csvData,
                 }),
             });
@@ -93,22 +104,23 @@ const EmailSender = () => {
 
             if (data.success) {
                 toast({
-                    title: 'Emails Sent Successfully',
+                    title: "Emails Sent Successfully",
                     description: `Successfully sent: ${data.results.successful.length} emails\nFailed: ${data.results.failed.length} emails`,
-                    variant: 'default',
+                    variant: "default",
                 });
 
                 if (data.results.failed.length > 0) {
-                    console.log('Failed emails:', data.results.failed);
+                    console.log("Failed emails:", data.results.failed);
                 }
             } else {
                 throw new Error(data.error);
             }
         } catch (error) {
             toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'Failed to send emails',
-                variant: 'destructive',
+                title: "Error",
+                description:
+                    error instanceof Error ? error.message : "Failed to send emails",
+                variant: "destructive",
             });
         } finally {
             setSending(false);
@@ -121,7 +133,9 @@ const EmailSender = () => {
                 <Card>
                     <CardHeader>
                         <CardTitle>Authentication Required</CardTitle>
-                        <CardDescription>Please sign in with Microsoft to send emails</CardDescription>
+                        <CardDescription>
+                            Please sign in with Microsoft to send emails
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Button onClick={handleSignIn} className="w-full">
@@ -141,11 +155,21 @@ const EmailSender = () => {
                     <div className="flex justify-between items-center">
                         <div>
                             <CardTitle>Mass Email Sender</CardTitle>
-                            <CardDescription>Upload your CSV, customize your email, and send to multiple recipients</CardDescription>
+                            <CardDescription>
+                                Upload your CSV, customize your email, and send to multiple
+                                recipients
+                            </CardDescription>
                         </div>
-                        <Button variant="outline" onClick={() => window.location.href = '/api/auth/logout'}>
-                            Sign Out
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                            <ThemeToggle />
+                            <Button
+                                variant="outline"
+                                onClick={() => window.location.href = "/api/auth/logout"}
+                            >
+                                <LogOut className="w-4 h-4 mr-2" />
+                                Sign Out
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -156,8 +180,9 @@ const EmailSender = () => {
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>CSV Format Required</AlertTitle>
                             <AlertDescription>
-                                Your CSV should include columns: email, first_name, and any other custom fields you want to use in your template.
-                                Use ${'{'}field_name{'}'} in your email to insert these values.
+                                Your CSV should include columns: email, first_name, and any
+                                other custom fields you want to use in your template. Use
+                                {" ${field_name} "} in your email to insert these values.
                             </AlertDescription>
                         </Alert>
                         <div className="flex items-center space-x-4">
@@ -173,7 +198,7 @@ const EmailSender = () => {
                         {csvPreview.length > 0 && (
                             <div className="mt-4">
                                 <h4 className="font-medium mb-2">Preview (first 3 rows):</h4>
-                                <div className="bg-gray-50 p-4 rounded-md">
+                                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md">
                                     <pre className="text-sm overflow-auto">
                                         {JSON.stringify(csvPreview, null, 2)}
                                     </pre>
@@ -187,7 +212,9 @@ const EmailSender = () => {
                         <h3 className="text-lg font-medium">2. Compose Email</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Subject Line</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Subject Line
+                                </label>
                                 <Input
                                     placeholder="Enter subject line (you can use ${first_name} etc.)"
                                     value={subject}
@@ -195,7 +222,9 @@ const EmailSender = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Email Body</label>
+                                <label className="block text-sm font-medium mb-1">
+                                    Email Body
+                                </label>
                                 <ReactQuill
                                     theme="snow"
                                     value={emailBody}
@@ -203,22 +232,29 @@ const EmailSender = () => {
                                     placeholder="Compose your email here (you can use ${first_name} etc.)"
                                     modules={{
                                         toolbar: [
-                                            [{ 'header': [1, 2, false] }],
-                                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                            ['link', 'image'],
-                                            ['color', 'background'],
-                                            ['clean']
+                                            [{ header: [1, 2, false] }],
+                                            ["bold", "italic", "underline", "strike", "blockquote"],
+                                            [{ list: "ordered" }, { list: "bullet" }],
+                                            ["link", "image"],
+                                            ["color", "background"], // Added color options
+                                            ["clean"],
                                         ],
                                     }}
                                     formats={[
-                                        'header',
-                                        'bold', 'italic', 'underline', 'strike', 'blockquote',
-                                        'list', 'bullet',
-                                        'link', 'image',
-                                        'color', 'background'
+                                        "header",
+                                        "bold",
+                                        "italic",
+                                        "underline",
+                                        "strike",
+                                        "blockquote",
+                                        "list",
+                                        "bullet",
+                                        "link",
+                                        "image",
+                                        "color",
+                                        "background",
                                     ]}
-                                    className="bg-white"
+                                    className="bg-white text-black"
                                 />
                             </div>
                         </div>

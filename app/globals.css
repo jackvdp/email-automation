@@ -76,3 +76,44 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* app/globals.css */
+
+.ql-snow {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.ql-snow .ql-toolbar {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+}
+
+.ql-snow .ql-container {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.ql-snow .ql-editor {
+  min-height: 200px;
+  color: var(--foreground);
+}
+
+/* Adjust toolbar icons and dropdowns for dark mode */
+.ql-snow .ql-picker {
+  color: var(--foreground);
+}
+
+.ql-snow .ql-stroke {
+  stroke: var(--foreground);
+}
+
+.dark .ql-editor a {
+  color: black !important;
+}
+
+/* Optionally, ensure hovered links maintain visibility */
+.dark .ql-editor a:hover {
+  color: blue !important; /* Adjust to your preferred dark mode link color */
+}

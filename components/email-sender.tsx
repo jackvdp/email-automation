@@ -1,5 +1,3 @@
-// app/components/EmailSender.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -14,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogIn, LogOut } from "lucide-react";
+import { AlertCircle, Upload, Send, LogIn, LogOut, TestTube2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -27,6 +25,8 @@ const EmailSender = () => {
     const [subject, setSubject] = useState("");
     const [emailBody, setEmailBody] = useState("");
     const [sending, setSending] = useState(false);
+    const [testEmail, setTestEmail] = useState("");
+    const [isTesting, setIsTesting] = useState(false);
 
     type CsvRow = {
         [key: string]: string | undefined;
@@ -124,6 +124,64 @@ const EmailSender = () => {
             });
         } finally {
             setSending(false);
+        }
+    };
+
+    const handleSendTestEmail = async () => {
+        if (!csvData.length) {
+            toast({
+                title: "No recipients available",
+                description: "Please upload a CSV with at least one recipient.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (!testEmail) {
+            toast({
+                title: "Test Email Required",
+                description: "Please enter an email address to send the test email.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setIsTesting(true);
+        try {
+            const firstRow = { ...csvData[0], email: testEmail };
+
+            const response = await fetch("/api/send-emails", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    subject,
+                    emailBody,
+                    recipients: [firstRow],
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                toast({
+                    title: "Test Email Sent Successfully",
+                    description: `Successfully sent a test email to ${testEmail}`,
+                    variant: "default",
+                });
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description:
+                    error instanceof Error ? error.message : "Failed to send test email",
+                variant: "destructive",
+            });
+        } finally {
+            setIsTesting(false);
         }
     };
 
@@ -285,8 +343,40 @@ const EmailSender = () => {
                         </div>
                     </div>
 
-                    {/* Send Button */}
-                    <div className="flex justify-end">
+                    {/* Test Email Section */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">3. Send Test Email</h3>
+                        <div className="flex items-center space-x-4">
+                            <Input
+                                type="email"
+                                placeholder="Enter test email address"
+                                value={testEmail}
+                                onChange={(e) => setTestEmail(e.target.value)}
+                                className="flex-1"
+                            />
+                            <Button
+                                onClick={handleSendTestEmail}
+                                disabled={!csvData.length || !testEmail || isTesting}
+                                className="w-32"
+                                variant={"outline"}
+                            >
+                                {isTesting ? (
+                                    "Sending..."
+                                ) : (
+                                    <>
+                                        <TestTube2 className="w-4 h-4 mr-2" />
+                                        Send Test
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Send Buttons Section */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium">4. Send Emails</h3>
+                        <div className="flex space-x-4 justify-end">
+
                         <Button
                             onClick={handleSendEmails}
                             disabled={!csvFile || !subject || !emailBody || sending}
@@ -302,6 +392,8 @@ const EmailSender = () => {
                             )}
                         </Button>
                     </div>
+                    </div>
+                    
                 </CardContent>
             </Card>
         </div>

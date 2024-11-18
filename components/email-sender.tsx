@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import QuillWrapper from "./QuilWrapper";
+import QuillWrapper from "./quil-wrapper";
 import "react-quill/dist/quill.snow.css";
 import { AlertCircle, Upload, Send, LogIn, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

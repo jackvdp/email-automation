@@ -16,6 +16,15 @@ import { AlertCircle, Upload, Send, LogIn, LogOut, Plus, Minus, TestTube2 } from
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 const EmailSender = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -282,7 +291,10 @@ const EmailSender = () => {
                                             {csvPreview.map((row, rowIndex) => (
                                                 <tr key={rowIndex}>
                                                     {Object.values(row).map((value, cellIndex) => (
-                                                        <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                                        <td
+                                                            key={cellIndex}
+                                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
+                                                        >
                                                             {value}
                                                         </td>
                                                     ))}
@@ -376,7 +388,7 @@ const EmailSender = () => {
                                             onClick={() => setShowCC(true)}
                                             size="sm"
                                         >
-                                            <Plus className="w-4 h-4" />
+                                            <Plus className="w-4 h-4 mr-1" />
                                             Add CC
                                         </Button>
                                     )}
@@ -407,7 +419,7 @@ const EmailSender = () => {
                                             onClick={() => setShowBCC(true)}
                                             size="sm"
                                         >
-                                            <Plus className="w-4 h-4" />
+                                            <Plus className="w-4 h-4 mr-1" />
                                             Add BCC
                                         </Button>
                                     )}
@@ -416,54 +428,62 @@ const EmailSender = () => {
                         </div>
                     </div>
 
-                    {/* Test Email Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">3. Send Test Email</h3>
-                        <div className="flex items-center space-x-4">
-                            <Input
-                                type="email"
-                                placeholder="Enter test email address"
-                                value={testEmail}
-                                onChange={(e) => setTestEmail(e.target.value)}
-                                className="flex-1"
-                            />
-                            <Button
-                                onClick={handleSendTestEmail}
-                                disabled={!csvData.length || !testEmail || isTesting}
-                                className="w-32"
-                                variant="outline"
-                            >
-                                {isTesting ? (
-                                    "Sending..."
-                                ) : (
-                                    <>
-                                        <TestTube2 className="w-4 h-4 mr-2" />
-                                        Send Test
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    </div>
+                    {/* Send Buttons Section */}
+                    <div className="flex space-x-4 justify-end">
+                        {/* Send Test Email Button */}
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="secondary"
+                                    disabled={!csvData.length || sending}
+                                    className="w-32"
+                                >
+                                    <TestTube2 className="w-4 h-4 mr-2" />
+                                    Send Test
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Send Test Email</DialogTitle>
+                                    <DialogDescription>
+                                        Enter an email address to send a test email. This helps you verify the email formatting and content before sending it to all recipients.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter test email address"
+                                        value={testEmail}
+                                        onChange={(e) => setTestEmail(e.target.value)}
+                                        className=""
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        onClick={handleSendTestEmail}
+                                        disabled={!testEmail || isTesting}
+                                    >
+                                        {isTesting ? "Sending..." : "Send Test"}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
 
-                    {/* Send Emails Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">4. Send Emails</h3>
-                        <div className="flex space-x-4 justify-end">
-                            <Button
-                                onClick={handleSendEmails}
-                                disabled={!csvFile || !subject || !emailBody || sending}
-                                className="w-32"
-                            >
-                                {sending ? (
-                                    "Sending..."
-                                ) : (
-                                    <>
-                                        <Send className="w-4 h-4 mr-2" />
-                                        Send Emails
-                                    </>
-                                )}
-                            </Button>
-                        </div>
+                        {/* Send Emails Button */}
+                        <Button
+                            onClick={handleSendEmails}
+                            disabled={!csvFile || !subject || !emailBody || sending}
+                            className="w-32"
+                        >
+                            {sending ? (
+                                "Sending..."
+                            ) : (
+                                <>
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Send Emails
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

@@ -5,11 +5,12 @@ import { ConfidentialClientApplication } from '@azure/msal-node';
 import msalConfig from '@/utils/msalConfig';
 import { v4 as uuidv4 } from 'uuid';
 import sessionStore from '@/utils/sessionStore';
+import { getBaseUrl } from '@/utils/urlUtils';
 
 export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const code = searchParams.get('code');
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = getBaseUrl(req);
 
     if (!code) {
         return NextResponse.redirect(`${baseUrl}/error?message=No_authorization_code`);

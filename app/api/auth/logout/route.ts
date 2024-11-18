@@ -2,9 +2,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import sessionStore from '@/utils/sessionStore';
+import { getBaseUrl } from '@/utils/urlUtils';
 
 export async function GET(req: NextRequest) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
+    const baseUrl = getBaseUrl(req);
     const tenantId = process.env.AZURE_TENANT_ID;
     const postLogoutRedirectUri = process.env.NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI || baseUrl;
 

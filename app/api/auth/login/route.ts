@@ -1,14 +1,17 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
-import { ConfidentialClientApplication } from '@azure/msal-node';
+import { PublicClientApplication } from '@azure/msal-node';
 import msalConfig from '@/utils/msalConfig';
+import { getBaseUrl } from '@/utils/urlUtils';
+import { NextRequest } from 'next/server';
 
-export async function GET() {
-    const cca = new ConfidentialClientApplication(msalConfig);
-    const authUrl = await cca.getAuthCodeUrl({
-        scopes: ['Mail.Send', 'User.Read'],
+export async function GET(req: NextRequest) {
+    const pca = new PublicClientApplication(msalConfig);
+    const baseUrl = getBaseUrl(req);
+    const authUrl = await pca.getAuthCodeUrl({
+        scopes: ['Mail.Send', 'Mail.ReadWrite'],
         responseMode: 'query',
-        redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`
+        redirectUri: `${baseUrl}/api/auth/callback`
     });
 
     return NextResponse.redirect(authUrl);

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogIn, LogOut, TestTube2 } from "lucide-react";
+import { AlertCircle, Upload, Send, LogIn, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -27,6 +27,10 @@ const EmailSender = () => {
     const [sending, setSending] = useState(false);
     const [testEmail, setTestEmail] = useState("");
     const [isTesting, setIsTesting] = useState(false);
+    const [showCC, setShowCC] = useState(false);
+    const [cc, setCC] = useState("");
+    const [showBCC, setShowBCC] = useState(false);
+    const [bcc, setBCC] = useState("");
 
     type CsvRow = {
         [key: string]: string | undefined;
@@ -97,6 +101,8 @@ const EmailSender = () => {
                     subject,
                     emailBody: sanitizedEmailBody,
                     recipients: csvData,
+                    cc: showCC ? cc : undefined,
+                    bcc: showBCC ? bcc : undefined,
                 }),
             });
 
@@ -159,6 +165,8 @@ const EmailSender = () => {
                     subject,
                     emailBody,
                     recipients: [firstRow],
+                    cc: showCC ? cc : undefined,
+                    bcc: showBCC ? bcc : undefined,
                 }),
             });
 
@@ -340,6 +348,71 @@ const EmailSender = () => {
                                     className="bg-white text-black"
                                 />
                             </div>
+
+                            {/* CC and BCC Toggle Section */}
+                            <div className="space-y-2">
+                                {/* CC Field */}
+                                <div className="flex items-center space-x-2">
+                                    {showCC ? (
+                                        <>
+                                            <Input
+                                                type="email"
+                                                placeholder="Enter CC email address"
+                                                value={cc}
+                                                onChange={(e) => setCC(e.target.value)}
+                                                className="flex-1"
+                                            />
+                                            <Button
+                                                variant="ghost"
+                                                onClick={() => setShowCC(false)}
+                                                size="icon"
+                                            >
+                                                <Minus className="w-4 h-4" />
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setShowCC(true)}
+                                            size="sm"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            Add CC
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {/* BCC Field */}
+                                <div className="flex items-center space-x-2">
+                                    {showBCC ? (
+                                        <>
+                                            <Input
+                                                type="email"
+                                                placeholder="Enter BCC email address"
+                                                value={bcc}
+                                                onChange={(e) => setBCC(e.target.value)}
+                                                className="flex-1"
+                                            />
+                                            <Button
+                                                variant="ghost"
+                                                onClick={() => setShowBCC(false)}
+                                                size="icon"
+                                            >
+                                                <Minus className="w-4 h-4" />
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setShowBCC(true)}
+                                            size="sm"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            Add BCC
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -358,7 +431,7 @@ const EmailSender = () => {
                                 onClick={handleSendTestEmail}
                                 disabled={!csvData.length || !testEmail || isTesting}
                                 className="w-32"
-                                variant={"outline"}
+                                variant="outline"
                             >
                                 {isTesting ? (
                                     "Sending..."
@@ -372,28 +445,26 @@ const EmailSender = () => {
                         </div>
                     </div>
 
-                    {/* Send Buttons Section */}
+                    {/* Send Emails Section */}
                     <div className="space-y-4">
                         <h3 className="text-lg font-medium">4. Send Emails</h3>
                         <div className="flex space-x-4 justify-end">
-
-                        <Button
-                            onClick={handleSendEmails}
-                            disabled={!csvFile || !subject || !emailBody || sending}
-                            className="w-32"
-                        >
-                            {sending ? (
-                                "Sending..."
-                            ) : (
-                                <>
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Send Emails
-                                </>
-                            )}
-                        </Button>
+                            <Button
+                                onClick={handleSendEmails}
+                                disabled={!csvFile || !subject || !emailBody || sending}
+                                className="w-32"
+                            >
+                                {sending ? (
+                                    "Sending..."
+                                ) : (
+                                    <>
+                                        <Send className="w-4 h-4 mr-2" />
+                                        Send Emails
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
-                    </div>
-                    
                 </CardContent>
             </Card>
         </div>

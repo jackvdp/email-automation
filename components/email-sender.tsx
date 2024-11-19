@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import QuillWrapper from "./quil-wrapper";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
+import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2, Trash2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -44,6 +44,7 @@ export default function EmailSender() {
     const [bcc, setBCC] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
     const [demoDialogOpen, setDemoDialogOpen] = useState(false);
+    const [openClear, setOpenClear] = useState(false);
 
     const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(event.target.files || []);
@@ -225,6 +226,20 @@ export default function EmailSender() {
         }
     };
 
+    const clearAllData = () => {
+        setCsvFile(null);
+        setCsvPreview([]);
+        setCsvData([]);
+        setSubject("");
+        setEmailBody("");
+        setTestEmail("");
+        setShowCC(false);
+        setCC("");
+        setShowBCC(false);
+        setBCC("");
+        setAttachments([]);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
             <Card className="max-w-5xl mx-auto shadow-lg">
@@ -239,6 +254,42 @@ export default function EmailSender() {
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-4">
+                            <Dialog open={openClear} onOpenChange={setOpenClear}>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" className="gap-2">
+                                        <Trash2 className="h-4 w-4" />
+                                        Clear Data
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Clear All Data?</DialogTitle>
+                                        <DialogDescription>
+                                            <div className="space-y-2">
+                                                <p>This will remove all data including:</p>
+                                                <ul className="list-disc pl-4">
+                                                    <li>CSV data</li>
+                                                    <li>Email content</li>
+                                                    <li>Attachments</li>
+                                                    <li>CC/BCC recipients</li>
+                                                </ul>
+                                            </div>
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setOpenClear(false)}>Cancel</Button>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                clearAllData();
+                                                setOpenClear(false);
+                                            }}
+                                        >
+                                            Clear All
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                             <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" className="gap-2" onClick={() => setDemoDialogOpen(true)}>

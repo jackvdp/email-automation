@@ -43,6 +43,7 @@ export default function EmailSender() {
     const [showBCC, setShowBCC] = useState(false);
     const [bcc, setBCC] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
+    const [demoDialogOpen, setDemoDialogOpen] = useState(false);
 
     const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(event.target.files || []);
@@ -175,6 +176,55 @@ export default function EmailSender() {
         }
     };
 
+    const enableDemoMode = async () => {
+        try {
+            // Load sample CSV
+            const response = await fetch('/data/sample.csv');
+            const csvText = await response.text();
+            const file = new File([csvText], 'sample.csv', { type: 'text/csv' });
+
+            // Set CSV data
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result;
+                if (typeof text === "string") {
+                    const rows = text.split("\n").filter(row => row.trim() !== "");
+                    const headers = rows[0].split(",");
+                    const fullData = rows.slice(1).map(row => {
+                        const values = row.split(",");
+                        return headers.reduce((obj, header, index) => ({
+                            ...obj,
+                            [header.trim()]: values[index]?.trim()
+                        }), {});
+                    });
+                    setCsvData(fullData);
+                    setCsvPreview(fullData.slice(0, 3));
+                    setCsvFile(file);
+                }
+            };
+            reader.readAsText(file);
+
+            // Set email content
+            setSubject("Special Offer for ${first_name} from ${company}");
+            setEmailBody(`Dear \${first_name},
+
+                We noticed you've been with \${company} for a while now, and we wanted to offer you something special. As a \${role}, we think you'll be particularly interested in this opportunity.
+                
+                Best regards,
+                The Team`);
+
+            // Set CC
+            setShowCC(true);
+            setCC("test@test.com");
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to load demo data",
+                variant: "destructive",
+            });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
             <Card className="max-w-5xl mx-auto shadow-lg">
@@ -189,6 +239,28 @@ export default function EmailSender() {
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-4">
+                            <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
+                                        <TestTube2 className="h-4 w-4" />
+                                        Demo Mode
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Enable Demo Mode?</DialogTitle>
+                                        <DialogDescription>
+                                            This will populate the form with sample data to demonstrate the application's functionality.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button onClick={() => {
+                                            enableDemoMode();
+                                            setDemoDialogOpen(false);
+                                        }}>Enable Demo Mode</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                             <ThemeToggle />
                             <Button
                                 variant="outline"

@@ -1,0 +1,4 @@
+email,first_name,last_name,company,role,custom_message
+john@test.com,John,Doe,Acme Corp,Developer,We'd love to get your feedback on our new API documentation
+jane@test.com,Jane,Smith,Tech Startup,CEO,Your insights at last month's conference were fascinating
+mike@test.com,Mike,Wilson,Enterprise Ltd,Manager,Following up on our discussion about cloud solutions

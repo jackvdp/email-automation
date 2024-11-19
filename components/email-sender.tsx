@@ -25,6 +25,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import validateAttachments from "@/utils/validateAttachements";
+import CsvRow from "@/types/csv";
+import prepareAndSendEmail from "@/utils/prepareAndSendEmail";
 
 export default function EmailSender() {
     const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -40,28 +43,6 @@ export default function EmailSender() {
     const [showBCC, setShowBCC] = useState(false);
     const [bcc, setBCC] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
-
-    const MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024;
-    const MAX_TOTAL_SIZE = 35 * 1024 * 1024;
-    const MAX_ATTACHMENTS = 250;
-
-    const validateAttachments = (files: File[]) => {
-        if (files.length > MAX_ATTACHMENTS) {
-            throw new Error(`Maximum ${MAX_ATTACHMENTS} attachments allowed`);
-        }
-
-        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-        if (totalSize > MAX_TOTAL_SIZE) {
-            throw new Error(`Total attachments size exceeds ${MAX_TOTAL_SIZE / (1024 * 1024)}MB`);
-        }
-
-        files.forEach(file => {
-            if (file.size > MAX_ATTACHMENT_SIZE) {
-                throw new Error(`File ${file.name} exceeds ${MAX_ATTACHMENT_SIZE / (1024 * 1024)}MB`);
-            }
-        });
-    };
-
 
     const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(event.target.files || []);
@@ -80,11 +61,6 @@ export default function EmailSender() {
     const removeAttachment = (index: number) => {
         setAttachments(prev => prev.filter((_, i) => i !== index));
     };
-
-    type CsvRow = {
-        [key: string]: string | undefined;
-    };
-
 
     const handleFileUpload = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -122,59 +98,28 @@ export default function EmailSender() {
     const handleSendEmails = async () => {
         setSending(true);
         try {
-            const uploadedAttachments = await Promise.all(
-                attachments.map(async (file) => {
-                    const buffer = await file.arrayBuffer();
-                    const base64 = Buffer.from(buffer).toString('base64');
-
-                    return {
-                        '@odata.type': '#microsoft.graph.fileAttachment',
-                        name: file.name,
-                        contentType: file.type,
-                        contentBytes: base64
-                    };
-                })
-            );
-
-            console.log("Attachments:", uploadedAttachments.length);
-
-            const sanitizedEmailBody = emailBody;
-
-            const response = await fetch("/api/send-emails", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    subject,
-                    emailBody: sanitizedEmailBody,
-                    recipients: csvData,
-                    cc: showCC ? cc : undefined,
-                    bcc: showBCC ? bcc : undefined,
-                    attachments: uploadedAttachments
-                }),
+            const data = await prepareAndSendEmail({
+                subject,
+                emailBody,
+                recipients: csvData,
+                cc: showCC ? cc : undefined,
+                bcc: showBCC ? bcc : undefined,
+                attachments
             });
 
-            const data = await response.json();
+            toast({
+                title: "Emails Sent Successfully",
+                description: `Successfully sent: ${data.results.successful.length} emails\nFailed: ${data.results.failed.length} emails`,
+                variant: "default",
+            });
 
-            if (data.success) {
-                toast({
-                    title: "Emails Sent Successfully",
-                    description: `Successfully sent: ${data.results.successful.length} emails\nFailed: ${data.results.failed.length} emails`,
-                    variant: "default",
-                });
-
-                if (data.results.failed.length > 0) {
-                    console.log("Failed emails:", data.results.failed);
-                }
-            } else {
-                throw new Error(data.error);
+            if (data.results.failed.length > 0) {
+                console.log("Failed emails:", data.results.failed);
             }
         } catch (error) {
             toast({
                 title: "Error",
-                description:
-                    error instanceof Error ? error.message : "Failed to send emails",
+                description: error instanceof Error ? error.message : "Failed to send emails",
                 variant: "destructive",
             });
         } finally {
@@ -203,56 +148,26 @@ export default function EmailSender() {
 
         setIsTesting(true);
         try {
-
             const firstRow = { ...csvData[0], email: testEmail };
-
-            const uploadedAttachments = await Promise.all(
-                attachments.map(async (file) => {
-                    const buffer = await file.arrayBuffer();
-                    const base64 = Buffer.from(buffer).toString('base64');
-
-                    return {
-                        '@odata.type': '#microsoft.graph.fileAttachment',
-                        name: file.name,
-                        contentType: file.type,
-                        contentBytes: base64
-                    };
-                })
-            );
-
-            console.log("Attachments:", uploadedAttachments.length);
-
-            const response = await fetch("/api/send-emails", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    subject,
-                    emailBody,
-                    recipients: [firstRow],
-                    cc: showCC ? cc : undefined,
-                    bcc: showBCC ? bcc : undefined,
-                    attachments: uploadedAttachments
-                }),
+            await prepareAndSendEmail({
+                subject,
+                emailBody,
+                recipients: [firstRow],
+                cc: showCC ? cc : undefined,
+                bcc: showBCC ? bcc : undefined,
+                attachments,
+                isTest: true
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                toast({
-                    title: "Test Email Sent Successfully",
-                    description: `Successfully sent a test email to ${testEmail}`,
-                    variant: "default",
-                });
-            } else {
-                throw new Error(data.error);
-            }
+            toast({
+                title: "Test Email Sent Successfully",
+                description: `Successfully sent a test email to ${testEmail}`,
+                variant: "default",
+            });
         } catch (error) {
             toast({
                 title: "Error",
-                description:
-                    error instanceof Error ? error.message : "Failed to send test email",
+                description: error instanceof Error ? error.message : "Failed to send test email",
                 variant: "destructive",
             });
         } finally {

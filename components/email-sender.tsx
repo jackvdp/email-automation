@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import QuillWrapper from "./quil-wrapper";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2, Trash2 } from "lucide-react";
+import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2, Trash2, Menu } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -28,6 +28,7 @@ import {
 import validateAttachments from "@/utils/validateAttachements";
 import CsvRow from "@/types/csv";
 import prepareAndSendEmail from "@/utils/prepareAndSendEmail";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function EmailSender() {
     const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -247,94 +248,7 @@ export default function EmailSender() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
 
-
-            <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-                    <div className="flex items-center gap-2">
-                        <div className="space-y-1">
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                                Mail Merge Sender
-                            </h1>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        {
-                            (anyDataInputed()) && (
-                                <Dialog open={openClear} onOpenChange={setOpenClear}>
-                            <DialogTrigger asChild>
-                                <Button variant="ghost" className="gap-2">
-                                    <Trash2 className="h-4 w-4" />
-                                    Clear Data
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Clear All Data?</DialogTitle>
-                                    <DialogDescription>
-                                        <div className="space-y-2">
-                                            <p>This will remove all data including:</p>
-                                            <ul className="list-disc pl-4">
-                                                <li>CSV data</li>
-                                                <li>Email content</li>
-                                                <li>Attachments</li>
-                                                <li>CC/BCC recipients</li>
-                                            </ul>
-                                        </div>
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <DialogFooter>
-                                    <Button variant="outline" onClick={() => setOpenClear(false)}>Cancel</Button>
-                                    <Button
-                                        variant="destructive"
-                                        onClick={() => {
-                                            clearAllData();
-                                            setOpenClear(false);
-                                        }}
-                                    >
-                                        Clear All
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                            )
-                        }
-                        <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="ghost" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
-                                    <TestTube2 className="h-4 w-4" />
-                                    Demo
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Apply Demo Data?</DialogTitle>
-                                    <DialogDescription>
-                                        <div className="space-y-2">
-                                            <p>This will populate the form with sample data so you can demonstrate the application's functionality.</p>
-                                            <p>After press the "Send Test" button at the bottom to send a test email to yourself.</p>
-                                        </div>
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <DialogFooter>
-                                    <Button onClick={() => {
-                                        enableDemoMode();
-                                        setDemoDialogOpen(false);
-                                    }}>Apply Demo Data</Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                        <ThemeToggle />
-                        <Button
-                            variant="outline"
-                            onClick={() => window.location.href = "/api/auth/logout"}
-                            className="gap-2 hover:bg-secondary"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <NavigationBar />
 
             <Card className="max-w-5xl mx-auto shadow-lg my-8">
                 <CardContent className="space-y-8 p-6">
@@ -578,4 +492,127 @@ export default function EmailSender() {
             </Card>
         </div>
     );
+
+    function ClearDataDialog() {
+        return (
+            <Dialog open={openClear} onOpenChange={setOpenClear}>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" className="gap-2">
+                        <Trash2 className="h-4 w-4" />
+                        Clear Data
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Clear All Data?</DialogTitle>
+                        <DialogDescription>
+                            <div className="space-y-2">
+                                <p>This will remove all data including:</p>
+                                <ul className="list-disc pl-4">
+                                    <li>CSV data</li>
+                                    <li>Email content</li>
+                                    <li>Attachments</li>
+                                    <li>CC/BCC recipients</li>
+                                </ul>
+                            </div>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setOpenClear(false)}>Cancel</Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                clearAllData();
+                                setOpenClear(false);
+                            }}
+                        >
+                            Clear All
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        )
+    }
+
+    function NavigationBar() {
+        return (
+            <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                            Mail Merge Sender
+                        </h1>
+                    </div>
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-4">
+                        {anyDataInputed() && <ClearDataDialog />}
+                        <DemoDialog />
+                        <ThemeToggle />
+                        <SignOutButton />
+                    </div>
+
+                    {/* Mobile Navigation */}
+                    <Sheet>
+                        <SheetTrigger asChild className="md:hidden">
+                            <Button variant="ghost" size="icon">
+                                <Menu className="h-5 w-5" />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent>
+                            <div className="flex flex-col items-center gap-4 mt-8">
+                                {anyDataInputed() && <ClearDataDialog />}
+                                <DemoDialog />
+                                <ThemeToggle />
+                                <SignOutButton />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+            </div>
+        )
+    }
+
+    function DemoDialog() {
+        return (
+            <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
+                        <TestTube2 className="h-4 w-4" />
+                        Demo
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Apply Demo Data?</DialogTitle>
+                        <DialogDescription>
+                            <div className="space-y-2">
+                                <p>This will populate the form with sample data so you can demonstrate the application's functionality.</p>
+                                <p>After press the "Send Test" button at the bottom to send a test email to yourself.</p>
+                            </div>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => {
+                            enableDemoMode();
+                            setDemoDialogOpen(false);
+                        }}>Apply Demo Data</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        )
+    }
+
+    function SignOutButton() {
+        return (
+            <Button
+                variant="outline"
+                onClick={() => window.location.href = "/api/auth/logout"}
+                className="gap-2 hover:bg-secondary"
+            >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+            </Button>
+        )
+    }
 };

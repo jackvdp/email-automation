@@ -14,6 +14,6 @@ export async function GET(req: NextRequest) {
     console.log(`***** Session token: ${sessionToken}, Session ID: ${sessionID}`);
 
     return NextResponse.json({
-        isAuthenticated: !!sessionToken,
+        isAuthenticated: !!sessionToken && !!sessionID,
     });
 }

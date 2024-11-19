@@ -39,12 +39,53 @@ export default function EmailSender() {
     const [cc, setCC] = useState("");
     const [showBCC, setShowBCC] = useState(false);
     const [bcc, setBCC] = useState("");
+    const [attachments, setAttachments] = useState<File[]>([]);
+
+    const MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024;
+    const MAX_TOTAL_SIZE = 35 * 1024 * 1024;
+    const MAX_ATTACHMENTS = 250;
+
+    const validateAttachments = (files: File[]) => {
+        if (files.length > MAX_ATTACHMENTS) {
+            throw new Error(`Maximum ${MAX_ATTACHMENTS} attachments allowed`);
+        }
+
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        if (totalSize > MAX_TOTAL_SIZE) {
+            throw new Error(`Total attachments size exceeds ${MAX_TOTAL_SIZE / (1024 * 1024)}MB`);
+        }
+
+        files.forEach(file => {
+            if (file.size > MAX_ATTACHMENT_SIZE) {
+                throw new Error(`File ${file.name} exceeds ${MAX_ATTACHMENT_SIZE / (1024 * 1024)}MB`);
+            }
+        });
+    };
+
+
+    const handleAttachmentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files || []);
+        try {
+            validateAttachments([...attachments, ...files]);
+            setAttachments(prev => [...prev, ...files]);
+        } catch (error) {
+            toast({
+                title: "Attachment Error",
+                description: error instanceof Error ? error.message : "Failed to add attachments",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const removeAttachment = (index: number) => {
+        setAttachments(prev => prev.filter((_, i) => i !== index));
+    };
 
     type CsvRow = {
         [key: string]: string | undefined;
     };
 
-    
+
     const handleFileUpload = (
         event: React.ChangeEvent<HTMLInputElement>
     ): void => {
@@ -81,6 +122,22 @@ export default function EmailSender() {
     const handleSendEmails = async () => {
         setSending(true);
         try {
+            const uploadedAttachments = await Promise.all(
+                attachments.map(async (file) => {
+                    const buffer = await file.arrayBuffer();
+                    const base64 = Buffer.from(buffer).toString('base64');
+
+                    return {
+                        '@odata.type': '#microsoft.graph.fileAttachment',
+                        name: file.name,
+                        contentType: file.type,
+                        contentBytes: base64
+                    };
+                })
+            );
+
+            console.log("Attachments:", uploadedAttachments.length);
+
             const sanitizedEmailBody = emailBody;
 
             const response = await fetch("/api/send-emails", {
@@ -94,6 +151,7 @@ export default function EmailSender() {
                     recipients: csvData,
                     cc: showCC ? cc : undefined,
                     bcc: showBCC ? bcc : undefined,
+                    attachments: uploadedAttachments
                 }),
             });
 
@@ -145,7 +203,24 @@ export default function EmailSender() {
 
         setIsTesting(true);
         try {
+
             const firstRow = { ...csvData[0], email: testEmail };
+
+            const uploadedAttachments = await Promise.all(
+                attachments.map(async (file) => {
+                    const buffer = await file.arrayBuffer();
+                    const base64 = Buffer.from(buffer).toString('base64');
+
+                    return {
+                        '@odata.type': '#microsoft.graph.fileAttachment',
+                        name: file.name,
+                        contentType: file.type,
+                        contentBytes: base64
+                    };
+                })
+            );
+
+            console.log("Attachments:", uploadedAttachments.length);
 
             const response = await fetch("/api/send-emails", {
                 method: "POST",
@@ -158,6 +233,7 @@ export default function EmailSender() {
                     recipients: [firstRow],
                     cc: showCC ? cc : undefined,
                     bcc: showBCC ? bcc : undefined,
+                    attachments: uploadedAttachments
                 }),
             });
 
@@ -194,7 +270,7 @@ export default function EmailSender() {
                                 Mail Merge Sender
                             </CardTitle>
                             <CardDescription className="text-base">
-                                Send personalized emails to multiple recipients with ease
+                                Send personalised emails to multiple recipients with ease
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-4">
@@ -360,6 +436,33 @@ export default function EmailSender() {
                                             <Plus className="w-4 h-4" />
                                             Add BCC
                                         </Button>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Attachments</label>
+                                    <Input
+                                        type="file"
+                                        multiple
+                                        onChange={handleAttachmentUpload}
+                                        className="border-2"
+                                    />
+                                    {attachments.length > 0 && (
+                                        <div className="space-y-2">
+                                            {attachments.map((file, index) => (
+                                                <div key={index} className="flex items-center justify-between p-2 bg-secondary/20 rounded">
+                                                    <span className="text-sm">{file.name} ({(file.size / (1024 * 1024)).toFixed(2)}MB)</span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => removeAttachment(index)}
+                                                        className="h-8 w-8"
+                                                    >
+                                                        <Minus className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
                             </div>

@@ -43,6 +43,23 @@ async function getGraphClient(sessionId: string) {
     });
 }
 
+async function uploadAttachments(files: File[]) {
+    const attachments = await Promise.all(
+        files.map(async (file) => {
+            const buffer = await file.arrayBuffer();
+            const base64 = Buffer.from(buffer).toString('base64');
+
+            return {
+                '@odata.type': '#microsoft.graph.fileAttachment',
+                name: file.name,
+                contentType: file.type,
+                contentBytes: base64
+            };
+        })
+    );
+    return attachments;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const sessionId = cookies().get('graph-session')?.value;
@@ -55,7 +72,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { subject, emailBody, recipients, cc, bcc } = await req.json();
+        const { subject, emailBody, recipients, cc, bcc, attachments } = await req.json();
 
         if (!subject || !emailBody || !recipients?.length) {
             return NextResponse.json(
@@ -96,6 +113,7 @@ export async function POST(req: NextRequest) {
                             }
                         }
                     ],
+                    attachments: attachments || []
                 };
 
                 // Include CC if provided

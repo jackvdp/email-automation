@@ -5,7 +5,7 @@ import sessionStore from '@/utils/sessionStore';
 
 export async function GET(req: NextRequest) {
     const sessionToken = cookies().get('graph-session')?.value;
-    var sessionID: string | undefined;
+    let sessionID: string | undefined;
 
     if (sessionToken) {
         sessionID = sessionStore.get(sessionToken);

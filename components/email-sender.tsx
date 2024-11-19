@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import QuillWrapper from "./quil-wrapper";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogIn, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
+import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -185,77 +185,81 @@ export default function EmailSender() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-6">
-            <Card>
-                <CardHeader>
+        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
+            <Card className="max-w-5xl mx-auto shadow-lg">
+                <CardHeader className="border-b">
                     <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle>Mail Merge Sender</CardTitle>
-                            <CardDescription>
-                                Upload your CSV, customize your email, and send to multiple
-                                recipients
+                        <div className="space-y-1">
+                            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                                Mail Merge Sender
+                            </CardTitle>
+                            <CardDescription className="text-base">
+                                Send personalized emails to multiple recipients with ease
                             </CardDescription>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-4">
                             <ThemeToggle />
                             <Button
                                 variant="outline"
                                 onClick={() => window.location.href = "/api/auth/logout"}
+                                className="gap-2 hover:bg-secondary"
                             >
-                                <LogOut className="w-4 h-4 mr-2" />
+                                <LogOut className="w-4 h-4" />
                                 Sign Out
                             </Button>
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* CSV Upload Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">1. Upload Recipients CSV</h3>
-                        <Alert className="bg-secondary">
+
+                <CardContent className="space-y-8 p-6">
+                    {/* Upload Section */}
+                    <section className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-8 w-1 bg-primary rounded-full" />
+                            <h3 className="text-xl font-semibold">1. Upload Recipients</h3>
+                        </div>
+
+                        <Alert className="bg-secondary/50 border-secondary">
                             <AlertCircle className="h-4 w-4" />
                             <AlertTitle>CSV Format Required</AlertTitle>
                             <AlertDescription>
-                                Your CSV should include columns: email, first_name, and any
-                                other custom fields you want to use in your template. Use
-                                {" ${field_name} "} in your email to insert these values.
+                                Include columns: email, first_name, and custom fields.
+                                Use ${"{field_name}"} to insert values in your template.
                             </AlertDescription>
                         </Alert>
-                        <div className="flex items-center space-x-4">
+
+                        <div className="flex items-center gap-4 p-4 border-2 border-dashed rounded-lg hover:border-primary/50 transition-colors">
                             <Input
                                 type="file"
                                 accept=".csv"
                                 onChange={handleFileUpload}
                                 className=""
                             />
-                            <Upload className="h-5 w-5 text-gray-500" />
+                            <Upload className="h-5 w-5 text-muted-foreground" />
                         </div>
 
                         {csvPreview.length > 0 && (
-                            <div className="mt-4">
-                                <h4 className="font-medium mb-2">Preview (first 3 rows):</h4>
-                                <div className="overflow-auto rounded-md border border-gray-200 dark:border-gray-700">
-                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                        <thead className="bg-gray-50 dark:bg-gray-800">
+                            <div className="rounded-lg border bg-card">
+                                <div className="p-4 border-b">
+                                    <h4 className="font-medium">Preview</h4>
+                                    <p className="text-sm text-muted-foreground">First 3 rows of {csvData.length} total records</p>
+                                </div>
+                                <div className="overflow-auto max-h-64">
+                                    <table className="w-full">
+                                        <thead className="bg-muted/50">
                                             <tr>
                                                 {Object.keys(csvPreview[0]).map((header) => (
-                                                    <th
-                                                        key={header}
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                                                    >
+                                                    <th key={header} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                         {header}
                                                     </th>
                                                 ))}
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tbody className="divide-y">
                                             {csvPreview.map((row, rowIndex) => (
-                                                <tr key={rowIndex}>
+                                                <tr key={rowIndex} className="hover:bg-muted/50 transition-colors">
                                                     {Object.values(row).map((value, cellIndex) => (
-                                                        <td
-                                                            key={cellIndex}
-                                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
-                                                        >
+                                                        <td key={cellIndex} className="px-4 py-3 text-sm">
                                                             {value}
                                                         </td>
                                                     ))}
@@ -264,112 +268,114 @@ export default function EmailSender() {
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Total Rows: {csvData.length}
-                                </div>
                             </div>
                         )}
-                    </div>
+                    </section>
 
-                    {/* Email Template Section */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-medium">2. Compose Email</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    Subject Line
-                                </label>
+                    {/* Compose Section */}
+                    <section className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-8 w-1 bg-primary rounded-full" />
+                            <h3 className="text-xl font-semibold">2. Compose Email</h3>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Subject Line</label>
                                 <Input
-                                    placeholder="Enter subject line (you can use ${first_name} etc.)"
+                                    placeholder="Enter subject line (supports ${first_name} etc.)"
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
+                                    className="border-2 focus-visible:ring-1"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    Email Body
-                                </label>
-                                <QuillWrapper value={emailBody} onChange={setEmailBody} />
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Email Body</label>
+                                <div className="border rounded-lg">
+                                    <QuillWrapper value={emailBody} onChange={setEmailBody} />
+                                </div>
                             </div>
 
-                            {/* CC and BCC Toggle Section */}
-                            <div className="space-y-2">
-                                {/* CC Field */}
-                                <div className="flex items-center space-x-2">
+                            {/* CC/BCC Section */}
+                            <div className="space-y-3 ">
+                                <div className="flex items-center gap-2">
                                     {showCC ? (
-                                        <>
+                                        <div className="flex-1 flex items-center gap-2">
                                             <Input
                                                 type="email"
-                                                placeholder="Enter CC email address"
+                                                placeholder="CC email address"
                                                 value={cc}
                                                 onChange={(e) => setCC(e.target.value)}
-                                                className="flex-1"
+                                                className="border-2"
                                             />
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => setShowCC(false)}
                                                 size="icon"
+                                                className="shrink-0"
                                             >
                                                 <Minus className="w-4 h-4" />
                                             </Button>
-                                        </>
+                                        </div>
                                     ) : (
                                         <Button
                                             variant="ghost"
                                             onClick={() => setShowCC(true)}
                                             size="sm"
+                                            className="gap-2"
                                         >
-                                            <Plus className="w-4 h-4 mr-1" />
+                                            <Plus className="w-4 h-4" />
                                             Add CC
                                         </Button>
                                     )}
                                 </div>
 
-                                {/* BCC Field */}
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center gap-2">
                                     {showBCC ? (
-                                        <>
+                                        <div className="flex-1 flex items-center gap-2">
                                             <Input
                                                 type="email"
-                                                placeholder="Enter BCC email address"
+                                                placeholder="BCC email address"
                                                 value={bcc}
                                                 onChange={(e) => setBCC(e.target.value)}
-                                                className="flex-1"
+                                                className="border-2"
                                             />
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => setShowBCC(false)}
                                                 size="icon"
+                                                className="shrink-0"
                                             >
                                                 <Minus className="w-4 h-4" />
                                             </Button>
-                                        </>
+                                        </div>
                                     ) : (
                                         <Button
                                             variant="ghost"
                                             onClick={() => setShowBCC(true)}
                                             size="sm"
+                                            className="gap-2"
                                         >
-                                            <Plus className="w-4 h-4 mr-1" />
+                                            <Plus className="w-4 h-4" />
                                             Add BCC
                                         </Button>
                                     )}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    {/* Send Buttons Section */}
-                    <div className="flex space-x-4 justify-end">
-                        {/* Send Test Email Button */}
+                    {/* Action Buttons */}
+                    <div className="flex justify-end items-center gap-4 pt-4">
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button
                                     variant="secondary"
                                     disabled={!csvData.length || sending}
-                                    className="w-32"
+                                    className="min-w-[140px] gap-2"
                                 >
-                                    <TestTube2 className="w-4 h-4 mr-2" />
+                                    <TestTube2 className="w-4 h-4" />
                                     Send Test
                                 </Button>
                             </DialogTrigger>
@@ -377,43 +383,38 @@ export default function EmailSender() {
                                 <DialogHeader>
                                     <DialogTitle>Send Test Email</DialogTitle>
                                     <DialogDescription>
-                                        Enter an email address to send a test email. This helps you verify the email formatting and content before sending it to all recipients.
+                                        Verify your email formatting and content before sending to all recipients.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="space-y-4 py-4">
+                                <div className="py-4">
                                     <Input
                                         type="email"
                                         placeholder="Enter test email address"
                                         value={testEmail}
                                         onChange={(e) => setTestEmail(e.target.value)}
-                                        className=""
+                                        className="border-2"
                                     />
                                 </div>
                                 <DialogFooter>
                                     <Button
                                         onClick={handleSendTestEmail}
                                         disabled={!testEmail || isTesting}
+                                        className="gap-2"
                                     >
+                                        <TestTube2 className="w-4 h-4" />
                                         {isTesting ? "Sending..." : "Send Test"}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
 
-                        {/* Send Emails Button */}
                         <Button
                             onClick={handleSendEmails}
                             disabled={!csvFile || !subject || !emailBody || sending}
-                            className="w-32"
+                            className="min-w-[140px] gap-2"
                         >
-                            {sending ? (
-                                "Sending..."
-                            ) : (
-                                <>
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Send Emails
-                                </>
-                            )}
+                            <Send className="w-4 h-4" />
+                            {sending ? "Sending..." : "Send Emails"}
                         </Button>
                     </div>
                 </CardContent>

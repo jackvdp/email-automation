@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import QuillWrapper from "./quil-wrapper";
 import "react-quill/dist/quill.snow.css";
-import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2, Trash2, Menu } from "lucide-react";
+import { AlertCircle, Upload, Send, LogOut, Plus, Minus, TestTube2, Trash2, Menu, Download } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/theme-toggle";
@@ -260,12 +260,29 @@ export default function EmailSender() {
                         </div>
 
                         <Alert className="bg-secondary/50 border-secondary">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>CSV Format Required</AlertTitle>
-                            <AlertDescription>
-                                Include columns: email, first_name, and custom fields.
-                                Use ${"{field_name}"} to insert values in your template.
-                            </AlertDescription>
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex gap-2 flex-1">
+                                    <AlertCircle className="h-4 w-4 mt-1" />
+                                    <div>
+                                        <AlertTitle>CSV Format Required</AlertTitle>
+                                        <AlertDescription>
+                                            Include columns: email, first_name, and custom fields.
+                                            Use ${"{field_name}"} to insert values in your template.
+                                        </AlertDescription>
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        window.location.href = '/data/sample.csv';
+                                    }}
+                                    className="gap-2 shrink-0"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Download Sample
+                                </Button>
+                            </div>
                         </Alert>
 
                         <div className="flex items-center gap-4 p-4 border-2 border-dashed rounded-lg hover:border-primary/50 transition-colors">

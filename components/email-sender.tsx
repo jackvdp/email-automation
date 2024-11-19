@@ -243,21 +243,24 @@ export default function EmailSender() {
                                 <DialogTrigger asChild>
                                     <Button variant="outline" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
                                         <TestTube2 className="h-4 w-4" />
-                                        Demo Mode
+                                        Demo
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>Enable Demo Mode?</DialogTitle>
+                                        <DialogTitle>Apply Demo Data?</DialogTitle>
                                         <DialogDescription>
-                                            This will populate the form with sample data to demonstrate the application's functionality.
+                                            <div className="space-y-2">
+                                                <p>This will populate the form with sample data so you can demonstrate the application's functionality.</p>
+                                                <p>After press the "Send Test" button at the bottom to send a test email to yourself.</p>
+                                            </div>
                                         </DialogDescription>
                                     </DialogHeader>
                                     <DialogFooter>
                                         <Button onClick={() => {
                                             enableDemoMode();
                                             setDemoDialogOpen(false);
-                                        }}>Enable Demo Mode</Button>
+                                        }}>Apply Demo Data</Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
@@ -473,7 +476,11 @@ export default function EmailSender() {
                                 <DialogHeader>
                                     <DialogTitle>Send Test Email</DialogTitle>
                                     <DialogDescription>
-                                        Verify your email formatting and content before sending to all recipients.
+                                        <div className="space-y-2">
+                                            <p>Verify your email formatting and content before sending to all recipients.</p>
+                                            <p>Enter your email below to deliver the test email to yourself.</p>
+                                        </div>
+
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="py-4">

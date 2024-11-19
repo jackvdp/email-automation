@@ -240,94 +240,103 @@ export default function EmailSender() {
         setAttachments([]);
     };
 
+    function anyDataInputed(): boolean {
+        return !!csvFile || subject !== "" || emailBody !== "" || !!testEmail || !!cc || !!bcc || attachments.length > 0;
+    }
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-6">
-            <Card className="max-w-5xl mx-auto shadow-lg">
-                <CardHeader className="border-b">
-                    <div className="flex justify-between items-center">
+        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+
+
+            <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+                    <div className="flex items-center gap-2">
                         <div className="space-y-1">
-                            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                                 Mail Merge Sender
-                            </CardTitle>
-                            <CardDescription className="text-base">
-                                Send personalised emails to multiple recipients with ease
-                            </CardDescription>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <Dialog open={openClear} onOpenChange={setOpenClear}>
-                                <DialogTrigger asChild>
-                                    <Button variant="ghost" className="gap-2">
-                                        <Trash2 className="h-4 w-4" />
-                                        Clear Data
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Clear All Data?</DialogTitle>
-                                        <DialogDescription>
-                                            <div className="space-y-2">
-                                                <p>This will remove all data including:</p>
-                                                <ul className="list-disc pl-4">
-                                                    <li>CSV data</li>
-                                                    <li>Email content</li>
-                                                    <li>Attachments</li>
-                                                    <li>CC/BCC recipients</li>
-                                                </ul>
-                                            </div>
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <DialogFooter>
-                                        <Button variant="outline" onClick={() => setOpenClear(false)}>Cancel</Button>
-                                        <Button
-                                            variant="destructive"
-                                            onClick={() => {
-                                                clearAllData();
-                                                setOpenClear(false);
-                                            }}
-                                        >
-                                            Clear All
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                            <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
-                                        <TestTube2 className="h-4 w-4" />
-                                        Demo
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Apply Demo Data?</DialogTitle>
-                                        <DialogDescription>
-                                            <div className="space-y-2">
-                                                <p>This will populate the form with sample data so you can demonstrate the application's functionality.</p>
-                                                <p>After press the "Send Test" button at the bottom to send a test email to yourself.</p>
-                                            </div>
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <DialogFooter>
-                                        <Button onClick={() => {
-                                            enableDemoMode();
-                                            setDemoDialogOpen(false);
-                                        }}>Apply Demo Data</Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                            <ThemeToggle />
-                            <Button
-                                variant="outline"
-                                onClick={() => window.location.href = "/api/auth/logout"}
-                                className="gap-2 hover:bg-secondary"
-                            >
-                                <LogOut className="w-4 h-4" />
-                                Sign Out
-                            </Button>
+                            </h1>
                         </div>
                     </div>
-                </CardHeader>
+                    <div className="flex items-center gap-4">
+                        {
+                            (anyDataInputed()) && (
+                                <Dialog open={openClear} onOpenChange={setOpenClear}>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" className="gap-2">
+                                    <Trash2 className="h-4 w-4" />
+                                    Clear Data
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Clear All Data?</DialogTitle>
+                                    <DialogDescription>
+                                        <div className="space-y-2">
+                                            <p>This will remove all data including:</p>
+                                            <ul className="list-disc pl-4">
+                                                <li>CSV data</li>
+                                                <li>Email content</li>
+                                                <li>Attachments</li>
+                                                <li>CC/BCC recipients</li>
+                                            </ul>
+                                        </div>
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setOpenClear(false)}>Cancel</Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                            clearAllData();
+                                            setOpenClear(false);
+                                        }}
+                                    >
+                                        Clear All
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                            )
+                        }
+                        <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" className="gap-2" onClick={() => setDemoDialogOpen(true)}>
+                                    <TestTube2 className="h-4 w-4" />
+                                    Demo
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Apply Demo Data?</DialogTitle>
+                                    <DialogDescription>
+                                        <div className="space-y-2">
+                                            <p>This will populate the form with sample data so you can demonstrate the application's functionality.</p>
+                                            <p>After press the "Send Test" button at the bottom to send a test email to yourself.</p>
+                                        </div>
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                    <Button onClick={() => {
+                                        enableDemoMode();
+                                        setDemoDialogOpen(false);
+                                    }}>Apply Demo Data</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                        <ThemeToggle />
+                        <Button
+                            variant="outline"
+                            onClick={() => window.location.href = "/api/auth/logout"}
+                            className="gap-2 hover:bg-secondary"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Sign Out
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
+            <Card className="max-w-5xl mx-auto shadow-lg my-8">
                 <CardContent className="space-y-8 p-6">
                     {/* Upload Section */}
                     <section className="space-y-4">

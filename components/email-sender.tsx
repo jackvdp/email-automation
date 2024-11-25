@@ -274,13 +274,13 @@ export default function EmailSender() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                        window.location.href = '/data/sample.csv';
-                                    }}
+                                    asChild
                                     className="gap-2 shrink-0"
                                 >
-                                    <Download className="h-4 w-4" />
-                                    Download Sample
+                                    <a href="/data/sample.csv" download>
+                                        <Download className="h-4 w-4" />
+                                        Download Sample
+                                    </a>
                                 </Button>
                             </div>
                         </Alert>

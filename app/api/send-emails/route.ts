@@ -43,21 +43,47 @@ async function getGraphClient(sessionId: string) {
     });
 }
 
-async function uploadAttachments(files: File[]) {
-    const attachments = await Promise.all(
-        files.map(async (file) => {
-            const buffer = await file.arrayBuffer();
-            const base64 = Buffer.from(buffer).toString('base64');
-
-            return {
-                '@odata.type': '#microsoft.graph.fileAttachment',
-                name: file.name,
-                contentType: file.type,
-                contentBytes: base64
-            };
-        })
-    );
-    return attachments;
+function createOutlookStyledEmail(content: string) {
+    return `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+      xmlns:w="urn:schemas-microsoft-com:office:word" 
+      xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" 
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+    {font-family:"Cambria Math";
+    panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+    {font-family:Aptos;
+    panose-1:2 11 0 4 2 2 2 2 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+    {margin:0cm;
+    font-size:11.0pt;
+    font-family:"Aptos",sans-serif;
+    mso-ligatures:standardcontextual;
+    mso-fareast-language:EN-US;}
+.MsoChpDefault
+    {mso-style-type:export-only;
+    font-size:11.0pt;
+    mso-fareast-language:EN-US;}
+@page WordSection1
+    {size:612.0pt 792.0pt;
+    margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+    {page:WordSection1;}
+--></style>
+</head>
+<body lang="EN-GB" link="#467886" vlink="#96607D" style="word-wrap:break-word">
+<div class="WordSection1">
+<p class="MsoNormal">${content}<o:p></o:p></p>
+</div>
+</body>
+</html>`;
 }
 
 export async function POST(req: NextRequest) {
@@ -104,7 +130,7 @@ export async function POST(req: NextRequest) {
                     subject: personalizedSubject,
                     body: {
                         contentType: 'HTML',
-                        content: personalizedBody
+                        content: createOutlookStyledEmail(personalizedBody)
                     },
                     toRecipients: [
                         {

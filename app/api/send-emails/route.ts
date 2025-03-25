@@ -66,7 +66,8 @@ p.MsoNormal, li.MsoNormal, div.MsoNormal
     font-size:11.0pt;
     font-family:"Aptos",sans-serif;
     mso-ligatures:standardcontextual;
-    mso-fareast-language:EN-US;}
+    mso-fareast-language:EN-US;
+    line-height:100%;}
 .MsoChpDefault
     {mso-style-type:export-only;
     font-size:11.0pt;
@@ -80,7 +81,7 @@ div.WordSection1
 </head>
 <body lang="EN-GB" link="#467886" vlink="#96607D" style="word-wrap:break-word">
 <div class="WordSection1">
-<p class="MsoNormal">${content}<o:p></o:p></p>
+<p class="MsoNormal" style="line-height:100%">${content}<o:p></o:p></p>
 </div>
 </body>
 </html>`;

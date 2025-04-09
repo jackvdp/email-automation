@@ -43,6 +43,7 @@ async function getGraphClient(sessionId: string) {
     });
 }
 
+
 function createOutlookStyledEmail(content: string) {
     return `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" 
@@ -67,7 +68,7 @@ p.MsoNormal, li.MsoNormal, div.MsoNormal
     font-family:"Aptos",sans-serif;
     mso-ligatures:standardcontextual;
     mso-fareast-language:EN-US;
-    line-height:100%;}
+    line-height:1.0; /* Changed from 100% to 1.0 */}
 .MsoChpDefault
     {mso-style-type:export-only;
     font-size:11.0pt;
@@ -81,7 +82,7 @@ div.WordSection1
 </head>
 <body lang="EN-GB" link="#467886" vlink="#96607D" style="word-wrap:break-word">
 <div class="WordSection1">
-<p class="MsoNormal" style="line-height:100%">${content}<o:p></o:p></p>
+<div style="line-height:1.0; margin:0; padding:0;">${content}</div>
 </div>
 </body>
 </html>`;

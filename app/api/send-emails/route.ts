@@ -45,6 +45,16 @@ async function getGraphClient(sessionId: string) {
 
 
 function createOutlookStyledEmail(content: string) {
+    // First, let's clean up any potential empty paragraphs or excessive line breaks
+    // that might be in the content being passed to the function
+    const cleanedContent = content
+        // Replace any sequence of <p><br></p> or similar with a single line break
+        .replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '<br>')
+        // Replace any double line breaks with single ones
+        .replace(/(\r\n|\n){2,}/g, '\n')
+        // Remove extra spacing between markdown elements
+        .replace(/\n\s*\n/g, '\n');
+
     return `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" 
       xmlns:w="urn:schemas-microsoft-com:office:word" 
@@ -62,27 +72,28 @@ function createOutlookStyledEmail(content: string) {
     {font-family:Aptos;
     panose-1:2 11 0 4 2 2 2 2 2 4;}
 /* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-    {margin:0cm;
+p
+    {margin:0;
+    padding:0;
     font-size:11.0pt;
     font-family:"Aptos",sans-serif;
-    mso-ligatures:standardcontextual;
-    mso-fareast-language:EN-US;
-    line-height:1.0; /* Changed from 100% to 1.0 */}
-.MsoChpDefault
-    {mso-style-type:export-only;
+    line-height:1.0;} 
+body
+    {margin:0;
+    padding:0;
     font-size:11.0pt;
-    mso-fareast-language:EN-US;}
-@page WordSection1
-    {size:612.0pt 792.0pt;
-    margin:72.0pt 72.0pt 72.0pt 72.0pt;}
-div.WordSection1
-    {page:WordSection1;}
+    font-family:"Aptos",sans-serif;
+    line-height:1.0;}
+.email-content p
+    {margin-bottom:0.5em;}
+.email-content br + br
+    {display:none;}
+/* Ensure paragraphs have proper spacing, but not double spacing */
 --></style>
 </head>
 <body lang="EN-GB" link="#467886" vlink="#96607D" style="word-wrap:break-word">
-<div class="WordSection1">
-<div style="line-height:1.0; margin:0; padding:0;">${content}</div>
+<div class="email-content">
+${cleanedContent}
 </div>
 </body>
 </html>`;
